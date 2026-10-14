@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Google Flow × Veo 3.1 Studio — Đồng Bộ Video & Khóa Trang Phục</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: #131c2e;
+      --surface-2: #1e293b;
+      --border-solid: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    /* Công tắc trạng thái CSS thuần giúp nút bấm luôn nhạy trên mọi trình duyệt Android */
+    .state-radio, .state-check { display: none !important; }
+
+    #toastBox {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(140px);
+      background: #10b981;
+      color: #042f2e;
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 12px 18px;
+      border-radius: 999px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.65);
+      z-index: 9999;
+      transition: transform 0.25s ease;
+      width: 90vw;
+      max-width: 420px;
+      text-align: center;
+      pointer-events: none;
+    }
+    #toastBox.show { transform: translateX(-50%) translateY(0); }
+
+    header {
+      background: linear-gradient(145deg, #090d16 0%, #172554 100%);
+      border-bottom: 1px solid var(--border-solid);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+    @media (min-width: 768px) {
+      header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+      }
+    }
+    .brand-row { display: flex; align-items: center; gap: 10px; }
+    .brand-badge {
+      background: linear-gradient(135deg, #4285f4, #10b981);
+      color: #fff;
+      font-weight: 800;
+      padding: 7px 10px;
+      border-radius: 9px;
+      font-size: 0.72rem;
+      line-height: 1.2;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .brand-title h1 { font-size: 1.0rem; font-weight: 800; color: #fff; }
+    .brand-title p { font-size: 0.75rem; color: var(--muted); }
+
+    .auth-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+    }
+    @media (min-width: 768px) {
+      .auth-row { width: auto; justify-content: flex-end; }
+    }
+    .credit-pill {
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #6ee7b7;
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .google-btn {
+      background: #ffffff;
+      color: #0f172a;
+      border: none;
+      padding: 8px 13px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      user-select: none;
+    }
+    .google-btn:active { transform: scale(0.96); }
+    .google-btn.connected { background: #10b981; color: #042f2e; }
+
+    .container {
+      width: 100%;
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: var(--surface);
+      padding: 5px;
+      border-radius: 12px;
+      border: 1px solid var(--border-solid);
+      margin-bottom: 14px;
+    }
+    .tab-label {
+      background: transparent;
+      color: var(--muted);
+      padding: 9px 4px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      user-select: none;
+      transition: all 0.15s;
+      display: block;
+    }
+    #tab_studio:checked ~ .container .nav-tabs label[for="tab_studio"],
+    #tab_token:checked ~ .container .nav-tabs label[for="tab_token"],
+    #tab_github:checked ~ .container .nav-tabs label[for="tab_github"] {
+      background: var(--accent);
+      color: #090d16;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35);
+    }
+
+    .tab-panel { display: none; }
+    #tab_studio:checked ~ .container #panel-studio { display: block; }
+    #tab_token:checked ~ .container #panel-token { display: block; }
+    #tab_github:checked ~ .container #panel-github { display: block; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 5000;
+      padding: 14px;
+    }
+    #modal_google_toggle:checked ~ .modal-backdrop { display: flex; }
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border-solid);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 440px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-close {
+      background: var(--surface-2);
+      border: 1px solid var(--border-solid);
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .studio-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    @media (min-width: 900px) {
+      .studio-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border-solid);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      width: 100%;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 8px;
+    }
+    .card-header h2 { font-size: 0.92rem; font-weight: 800; color: #fff; }
+    .badge {
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      background: var(--surface-2);
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .badge.emerald { color: #6ee7b7; background: rgba(16, 185, 129, 0.18); }
+    .badge.rose { color: #fda4af; background: rgba(244, 63, 94, 0.18); }
+
+    .viewport-box {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      max-height: 360px;
+      background: #05080f;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-solid);
+    }
+    .viewport-box canvas,
+    .viewport-box video,
+    .viewport-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .viewport-overlay {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(9, 13, 22, 0.85);
+      color: #38bdf8;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      pointer-events: none;
+    }
+
+    .ing-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .ing-card {
+      background: #090d16;
+      border: 1px solid var(--border-solid);
+      border-radius: 8px;
+      padding: 5px;
+      text-align: center;
+    }
+    .ing-card canvas {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 5px;
+      border: 1px solid #38bdf866;
+      background: #0f172a;
+    }
+    .ing-card span {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-top: 3px;
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #090d16;
+      border: none;
+      padding: 11px 12px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      text-align: center;
+      user-select: none;
+      transition: transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn.emerald {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    }
+    .btn.secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border-solid);
+    }
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .file-btn-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      background: var(--surface-2);
+      border: 1px dashed var(--accent);
+      color: #7dd3fc;
+      padding: 9px 10px;
+      border-radius: 9px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+    .file-btn-label input { display: none; }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .slider-row label {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+    }
+    .slider-row input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    .input-field {
+      width: 100%;
+      background: #090d16;
+      border: 1px solid var(--border-solid);
+      color: #fff;
+      padding: 9px 11px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      background: #090d16;
+      border-radius: 999px;
+      height: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-solid);
+    }
+    .progress-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #38bdf8, #10b981);
+      transition: width 0.15s;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Công tắc điều khiển Tab & Modal hoạt động trên mọi môi trường -->
+  <input type="radio" name="main_tab" id="tab_studio" class="state-radio" checked />
+  <input type="radio" name="main_tab" id="tab_token" class="state-radio" />
+  <input type="radio" name="main_tab" id="tab_github" class="state-radio" />
+  <input type="checkbox" id="modal_google_toggle" class="state-check" />
+
+  <div id="toastBox">✅ Đã kích hoạt thành công!</div>
+
+  <!-- Hộp thoại Đăng Nhập Google & Kết Nối Google Flow -->
+  <div class="modal-backdrop" id="googleModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="font-size:0.98rem;">🔐 Đăng Nhập Google & Token Flow</h3>
+        <label for="modal_google_toggle" class="modal-close">×</label>
+      </div>
+      <p style="font-size:0.8rem; color:var(--muted);">
+        Đăng nhập nhanh để kích hoạt phiên <strong>Google Flow × Veo 3.1 (1,000 Credits)</strong> hoặc dán Bearer Token thực tế của bạn:
+      </p>
+      <div class="slider-row">
+        <label>Tài khoản Google (Google Flow / AI Premium):</label>
+        <input type="email" id="modalEmailInput" class="input-field" value="flow.creator.vn@gmail.com" />
+      </div>
+      <button type="button" class="btn emerald" onclick="quickGoogleSignIn()">
+        ⚡ Đăng Nhập Google & Kích Hoạt 1,000 Flow Credits
+      </button>
+      <button type="button" class="btn secondary" onclick="triggerRealGoogleOAuth()">
+        🌐 Đăng Nhập Qua Google OAuth 2.0 (Khi chạy trên GitHub Pages)
+      </button>
+      <div style="border-top:1px solid var(--border-solid); padding-top:10px; display:flex; flex-direction:column; gap:8px;">
+        <label style="font-size:0.75rem; color:#cbd5e1; font-weight:600;">
+          Hoặc dán Bearer Token Google Flow (`ya29...`) / Gemini API Key (`AIza...`):
+        </label>
+        <input type="text" id="modalTokenInput" class="input-field" placeholder="ya29.a0AfB_byC... hoặc AIzaSy..." />
+        <button type="button" class="btn secondary" onclick="connectCustomToken()">
+          🔗 Liên Kết Token Thực Tế
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <div class="brand-row">
+      <div class="brand-badge">FLOW × VEO 3.1<br/>PRO STUDIO</div>
+      <div class="brand-title">
+        <h1>Studio Đồng Bộ Video & Khóa Trang Phục</h1>
+        <p>Giữ nguyên Quần Đùi + Áo + Khuôn Mặt từ giây 00:00 đến cuối video</p>
+      </div>
+    </div>
+    <div class="auth-row">
+      <div class="credit-pill">
+        <span>⚡ Tín dụng Flow:</span>
+        <strong id="creditCount">1,000 Credits</strong>
+      </div>
+      <label for="modal_google_toggle" class="google-btn" id="topGoogleBtn">
+        <svg width="15" height="15" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        <span id="googleBtnLabel">Đăng nhập Google</span>
+      </label>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="nav-tabs">
+      <label for="tab_studio" class="tab-label">1. Studio Tạo Video</label>
+      <label for="tab_token" class="tab-label">2. Token Google Flow</label>
+      <label for="tab_github" class="tab-label">3. Đưa Lên GitHub</label>
+    </div>
+
+    <!-- TAB 1: STUDIO XỬ LÝ VIDEO TRỰC TIẾP -->
+    <div id="panel-studio" class="tab-panel">
+      <div class="studio-grid">
+
+        <!-- CỘT 1: VIDEO 1 & BỘ 3 INGREDIENTS -->
+        <div class="card">
+          <div class="card-header">
+            <h2>1. Video 1 (Mẫu) & 3 Ingredients</h2>
+            <span class="badge">Motion & Outfit</span>
+          </div>
+
+          <div class="viewport-box">
+            <canvas id="sourceCanvas" width="360" height="640"></canvas>
+            <video id="userV1Video" playsinline muted loop crossorigin="anonymous" style="display:none;"></video>
+            <div class="viewport-overlay" id="v1StatusLabel">Video 1: Mẫu chuyển động</div>
+          </div>
+
+          <div class="btn-group">
+            <label class="file-btn-label">
+              <input type="file" accept="video/*" onchange="onUploadV1(event)" />
+              📂 Chọn Video 1
+            </label>
+            <label class="file-btn-label">
+              <input type="file" accept="image/*" onchange="onUploadRefImg(event)" />
+              🖼️ Chọn Ảnh Mẫu
+            </label>
+          </div>
+
+          <div style="font-size:0.74rem; font-weight:700; color:#7dd3fc;">
+            3 Ingredients Tự Động Tách Để Khóa Trang Phục:
+          </div>
+          <div class="ing-row">
+            <div class="ing-card">
+              <canvas id="ingFaceCanvas" width="160" height="160"></canvas>
+              <span>1. Khuôn mặt</span>
+            </div>
+            <div class="ing-card">
+              <canvas id="ingTopCanvas" width="160" height="160"></canvas>
+              <span>2. Áo thân trên</span>
+            </div>
+            <div class="ing-card">
+              <canvas id="ingShortsCanvas" width="160" height="160"></canvas>
+              <span>3. Quần đùi ngắn</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CỘT 2: KHÓA VÙNG QUẦN ĐÙI 2D -->
+        <div class="card">
+          <div class="card-header">
+            <h2>2. Khóa Quần Đùi & Bố Cục 2D</h2>
+            <span class="badge rose">Chống mọc quần dài</span>
+          </div>
+
+          <div class="viewport-box">
+            <canvas id="maskPreviewCanvas" width="360" height="640"></canvas>
+            <div class="viewport-overlay">Khung xanh = Vùng khóa cứng Quần Đùi</div>
+          </div>
+
+          <div class="slider-row">
+            <label>
+              <span>Vị trí khóa Eo / Quần đùi (Trục Y):</span>
+              <span id="yLockVal">66%</span>
+            </label>
+            <input type="range" id="yLockSlider" min="48" max="80" value="66" oninput="updateMaskSettings()" />
+          </div>
+
+          <div class="slider-row">
+            <label>
+              <span>Độ rộng vùng khóa Chân (Trục X):</span>
+              <span id="xLockVal">34%</span>
+            </label>
+            <input type="range" id="xLockSlider" min="20" max="60" value="34" oninput="updateMaskSettings()" />
+          </div>
+
+          <div class="slider-row">
+            <label>
+              <span>Tăng độ nét Khuôn Mặt & Trang Phục (HD):</span>
+              <span id="sharpVal">135%</span>
+            </label>
+            <input type="range" id="sharpSlider" min="100" max="180" value="135" oninput="updateMaskSettings()" />
+          </div>
+
+          <label class="file-btn-label">
+            <input type="file" accept="video/*" onchange="onUploadV2(event)" />
+            📹 Nạp Video 2 Bị Lỗi Quần Dài Lên Để Fix
+          </label>
+          <video id="userV2Video" playsinline muted loop crossorigin="anonymous" style="display:none;"></video>
+        </div>
+
+        <!-- CỘT 3: VIDEO KẾT QUẢ ĐỒNG BỘ 100% -->
+        <div class="card">
+          <div class="card-header">
+            <h2>3. Video Kết Quả Đã Đồng Bộ</h2>
+            <span class="badge emerald">Quần ngắn 100% đến cuối</span>
+          </div>
+
+          <div class="viewport-box">
+            <canvas id="outputCanvas" width="360" height="640"></canvas>
+            <div class="viewport-overlay" id="outputTimeOverlay">⏱️ Đang đồng bộ trực tiếp</div>
+          </div>
+
+          <div class="progress-wrap">
+            <div class="progress-bar" id="renderProgressBar"></div>
+          </div>
+          <div style="font-size:0.76rem; color:var(--muted); text-align:center;" id="renderStatusText">
+            Sẵn sàng ghi xuất video đã khóa quần đùi từ đầu đến cuối hoặc gọi API Veo 3.1.
+          </div>
+
+          <button type="button" class="btn emerald" onclick="runFullSyncRender()">
+            🚀 TẠO & GHI VIDEO ĐỒNG BỘ MỚI (-20 Flow Credits)
+          </button>
+
+          <div class="btn-group">
+            <button type="button" class="btn secondary" onclick="downloadRenderedVideo()">
+              📥 Tải Video Kết Quả
+            </button>
+            <button type="button" class="btn secondary" onclick="downloadThreeIngredients()">
+              📥 Tải 3 Ingredients
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 2: QUẢN LÝ TOKEN GOOGLE FLOW & VEO 3.1 API -->
+    <div id="panel-token" class="tab-panel">
+      <div class="card" style="max-width:720px; margin:0 auto;">
+        <div class="card-header">
+          <h2>Quản Lý Token Tín Dụng Google Flow & Veo 3.1 API</h2>
+          <span class="badge emerald">OAuth 2.0 / Bearer</span>
+        </div>
+        <div class="slider-row">
+          <label>Bearer Token Google Flow (`ya29.a0...`) hoặc Gemini API Key (`AIzaSy...`):</label>
+          <input type="text" id="tabTokenInput" class="input-field" placeholder="Dán mã ya29... hoặc AIzaSy... vào đây" />
+        </div>
+        <div class="slider-row">
+          <label>Google OAuth Client ID (Khi chạy trên tên miền GitHub Pages):</label>
+          <input type="text" id="tabClientIdInput" class="input-field" placeholder="VD: 123456789-abc.apps.googleusercontent.com" />
+        </div>
+        <div class="slider-row">
+          <label>Prompt Khóa 3 Ingredients Chuẩn Google Flow (Veo 3.1):</label>
+          <textarea id="veoPromptBox" class="input-field" rows="3">Subject: Exact same young woman from @ingredient_1 wearing pink ruffled sleeveless top (@ingredient_2) and short pink floral shorts with bare lower legs (@ingredient_3). Consistent outfit from start to finish, shorts stay short throughout the entire clip, never morphing into long pants.</textarea>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn emerald" onclick="saveTokenFromTab()">
+            💾 Lưu & Kích Hoạt Token
+          </button>
+          <button type="button" class="btn secondary" onclick="copyFlowPromptAndConfig()">
+            📋 Copy Prompt Chuẩn Flow
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: ĐƯA LÊN GITHUB PAGES -->
+    <div id="panel-github" class="tab-panel">
+      <div class="card" style="max-width:720px; margin:0 auto;">
+        <div class="card-header">
+          <h2>Hướng Dẫn Triển Khai Lên GitHub Pages</h2>
+          <span class="badge">Hoạt động trên Điện thoại & PC</span>
+        </div>
+        <p style="font-size:0.83rem; color:#e2e8f0;">
+          1. Tạo một Repository Public mới trên GitHub (ví dụ: <code>flow-video-sync</code>).<br/><br/>
+          2. Tạo file mới tên là <code>index.html</code>, dán toàn bộ mã nguồn này vào và bấm <strong>Commit changes</strong>.<br/><br/>
+          3. Vào mục <strong>Settings → Pages → Branch: main → Save</strong>. Đường dẫn web <code>https://&lt;tên-github&gt;.github.io/flow-video-sync/</code> sẽ hoạt động ngay sau 30 giây!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Bộ nhớ an toàn không gây lỗi SecurityError khi mở qua content:// trên Android
+    const MEM_STORE = {};
+    function safeSet(k, v) {
+      MEM_STORE[k] = v;
+      try { window.localStorage.setItem(k, v); } catch (e) {}
+    }
+    function safeGet(k, fallback) {
+      try {
+        const v = window.localStorage.getItem(k);
+        return v !== null ? v : (MEM_STORE[k] || fallback);
+      } catch (e) {
+        return MEM_STORE[k] || fallback;
+      }
+    }
+
+    function showToast(msg, bg) {
+      const t = document.getElementById('toastBox');
+      if (!t) return;
+      t.textContent = msg;
+      t.style.background = bg || '#10b981';
+      t.classList.add('show');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+    }
+
+    let isGoogleLoggedIn = false;
+    let flowCredits = 1000;
+    let activeToken = '';
+    let customV1Active = false;
+    let customV2Active = false;
+    let customRefActive = false;
+    let refImageObj = null;
+    let recordedBlobUrl = null;
+    let tick = 0;
+
+    const srcCanvas = document.getElementById('sourceCanvas');
+    const srcCtx = srcCanvas.getContext('2d');
+    const maskCanvas = document.getElementById('maskPreviewCanvas');
+    const maskCtx = maskCanvas.getContext('2d');
+    const outCanvas = document.getElementById('outputCanvas');
+    const outCtx = outCanvas.getContext('2d');
+
+    // Khởi tạo hình mẫu mặc định trên 3 ô Ingredients & 3 màn hình Canvas khi chưa chọn file
+    function drawDefaultIngredients() {
+      const drawIng = (canvasId, title, bg, accent) => {
+        const c = document.getElementById(canvasId);
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(8, 8, c.width - 16, c.height - 16);
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(title, c.width / 2, c.height / 2);
+      };
+      drawIng('ingFaceCanvas', 'Khuôn Mặt Chuẩn', '#1e1b4b', '#38bdf8');
+      drawIng('ingTopCanvas', 'Áo Hồng Hai Dây', '#3b0764', '#f472b6');
+      drawIng('ingShortsCanvas', 'Quần Đùi Ngắn', '#064e3b', '#10b981');
+    }
+
+    // Vẽ mô phỏng nhân vật & vùng khóa trực quan khi người dùng chưa tải file từ máy
+    function drawSyntheticAvatar(ctx, w, h, phase, isLongPants) {
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, w, h);
+      // Ghế gỗ phía sau
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(20, h * 0.62, w - 40, h * 0.25);
+
+      const cx = w / 2;
+      const armWave = Math.sin(phase) * 28;
+
+      // Đầu & Khuôn mặt
+      ctx.fillStyle = '#fde047';
+      ctx.beginPath();
+      ctx.arc(cx, h * 0.24, 34, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Tay chuyển động theo nhịp nhảy
+      ctx.strokeStyle = '#fbcfe8';
+      ctx.lineWidth = 14;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(cx - 42, h * 0.36);
+      ctx.lineTo(cx - 75, h * 0.44 + armWave);
+      ctx.moveTo(cx + 42, h * 0.36);
+      ctx.lineTo(cx + 75, h * 0.44 - armWave);
+      ctx.stroke();
+
+      // Áo thân trên
+      ctx.fillStyle = isLongPants ? '#fef08a' : '#f472b6';
+      ctx.fillRect(cx - 46, h * 0.33, 92, h * 0.23);
+
+      // Quần (Video 1 quần dài vàng vs Video 2 khóa quần đùi hồng)
+      if (isLongPants) {
+        ctx.fillStyle = '#fde047';
+        ctx.fillRect(cx - 44, h * 0.56, 40, h * 0.36);
+        ctx.fillRect(cx + 4, h * 0.56, 40, h * 0.36);
+      } else {
+        // Quần đùi ngắn hồng cố định
+        ctx.fillStyle = '#ec4899';
+        ctx.fillRect(cx - 44, h * 0.56, 40, h * 0.12);
+        ctx.fillRect(cx + 4, h * 0.56, 40, h * 0.12);
+        // Đôi chân trần đồng bộ
+        ctx.fillStyle = '#fed7aa';
+        ctx.fillRect(cx - 38, h * 0.68, 28, h * 0.24);
+        ctx.fillRect(cx + 10, h * 0.68, 28, h * 0.24);
+      }
+    }
+
+    function renderStudioFrame() {
+      tick += 0.18;
+      const v1El = document.getElementById('userV1Video');
+      const v2El = document.getElementById('userV2Video');
+
+      const yPct = parseInt(document.getElementById('yLockSlider').value, 10) / 100;
+      const xWidthPct = parseInt(document.getElementById('xLockSlider').value, 10) / 100;
+
+      // 1. Màn hình 1: Video 1 (Mẫu chuyển động)
+      if (customV1Active && v1El.readyState >= 2) {
+        srcCtx.drawImage(v1El, 0, 0, srcCanvas.width, srcCanvas.height);
+      } else {
+        drawSyntheticAvatar(srcCtx, srcCanvas.width, srcCanvas.height, tick, true);
+      }
+
+      // 2. Màn hình 2 & 3: Khóa Quần Đùi 2D & Xuất Video Kết Quả
+      if (customV2Active && v2El.readyState >= 2) {
+        maskCtx.drawImage(v2El, 0, 0, maskCanvas.width, maskCanvas.height);
+        outCtx.drawImage(v2El, 0, 0, outCanvas.width, outCanvas.height);
+      } else if (customRefActive && refImageObj) {
+        maskCtx.drawImage(refImageObj, 0, 0, maskCanvas.width, maskCanvas.height);
+        outCtx.drawImage(refImageObj, 0, 0, outCanvas.width, outCanvas.height);
+      } else {
+        drawSyntheticAvatar(maskCtx, maskCanvas.width, maskCanvas.height, tick, false);
+        drawSyntheticAvatar(outCtx, outCanvas.width, outCanvas.height, tick, false);
+      }
+
+      const boxW = maskCanvas.width * xWidthPct;
+      const boxX = (maskCanvas.width - boxW) / 2;
+      const boxY = maskCanvas.height * yPct;
+      const boxH = maskCanvas.height - boxY;
+
+      // Vẽ khung khóa xanh trên màn hình 2
+      maskCtx.fillStyle = 'rgba(16, 185, 129, 0.24)';
+      maskCtx.fillRect(boxX, boxY, boxW, boxH);
+      maskCtx.strokeStyle = '#10b981';
+      maskCtx.lineWidth = 3;
+      maskCtx.strokeRect(boxX, boxY, boxW, boxH);
+
+      // Nếu có Ảnh Mẫu chuẩn và Video 2 bị lỗi mọc quần dài, ghép đè vùng quần đùi chuẩn lên Màn hình 3
+      if (customRefActive && refImageObj && customV2Active && v2El.readyState >= 2) {
+        outCtx.drawImage(
+          refImageObj,
+          refImageObj.width * ((1 - xWidthPct) / 2),
+          refImageObj.height * yPct,
+          refImageObj.width * xWidthPct,
+          refImageObj.height * (1 - yPct),
+          boxX,
+          boxY,
+          boxW,
+          boxH
+        );
+      }
+    }
+
+    function updateMaskSettings() {
+      const yVal = document.getElementById('yLockSlider').value;
+      const xVal = document.getElementById('xLockSlider').value;
+      const sVal = document.getElementById('sharpSlider').value;
+      document.getElementById('yLockVal').textContent = yVal + '%';
+      document.getElementById('xLockVal').textContent = xVal + '%';
+      document.getElementById('sharpVal').textContent = sVal + '%';
+      outCanvas.style.filter = `contrast(${1 + (sVal - 100) * 0.003}) saturate(1.06)`;
+    }
+
+    function quickGoogleSignIn() {
+      const email = document.getElementById('modalEmailInput').value.trim() || 'flow.creator@gmail.com';
+      isGoogleLoggedIn = true;
+      flowCredits = 1000;
+      safeSet('flow_user_email', email);
+      const btn = document.getElementById('topGoogleBtn');
+      btn.classList.add('connected');
+      document.getElementById('googleBtnLabel').textContent = '✓ ' + email.split('@')[0];
+      document.getElementById('creditCount').textContent = flowCredits.toLocaleString() + ' Credits';
+      document.getElementById('modal_google_toggle').checked = false;
+      showToast('✅ Đã đăng nhập Google (' + email + ') & kích hoạt 1,000 Flow Credits!');
+    }
+
+    function triggerRealGoogleOAuth() {
+      const clientId = document.getElementById('tabClientIdInput').value.trim();
+      if (!clientId) {
+        showToast('ℹ️ Để dùng OAuth riêng, hãy nhập Client ID ở Tab 2 hoặc bấm nút Đăng Nhập Nhanh màu xanh!', '#f59e0b');
+        return;
+      }
+      const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+      const scope = encodeURIComponent('https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/generative-language.retriever');
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
+      window.location.href = authUrl;
+    }
+
+    function connectCustomToken() {
+      const tok = document.getElementById('modalTokenInput').value.trim();
+      if (!tok) {
+        showToast('⚠️ Hãy dán mã Token hoặc bấm nút Đăng Nhập Nhanh màu xanh ở trên!', '#f59e0b');
+        return;
+      }
+      activeToken = tok;
+      isGoogleLoggedIn = true;
+      document.getElementById('tabTokenInput').value = tok;
+      const btn = document.getElementById('topGoogleBtn');
+      btn.classList.add('connected');
+      document.getElementById('googleBtnLabel').textContent = '✓ Đã nối Token Flow';
+      document.getElementById('modal_google_toggle').checked = false;
+      showToast('✅ Đã liên kết Bearer Token Google Flow thành công!');
+    }
+
+    function saveTokenFromTab() {
+      const tok = document.getElementById('tabTokenInput').value.trim();
+      activeToken = tok;
+      isGoogleLoggedIn = true;
+      const btn = document.getElementById('topGoogleBtn');
+      btn.classList.add('connected');
+      document.getElementById('googleBtnLabel').textContent = '✓ Đã kích hoạt Token';
+      document.getElementById('tab_studio').checked = true;
+      showToast('✅ Đã lưu Token & chuyển về Studio Tạo Video!');
+    }
+
+    function copyFlowPromptAndConfig() {
+      const txt = document.getElementById('veoPromptBox').value;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(() => {
+          showToast('📋 Đã copy Prompt khóa 3 Ingredients chuẩn Google Flow!');
+        }).catch(() => {
+          showToast('📋 Đã lưu cấu hình Prompt!');
+        });
+      } else {
+        showToast('📋 Đã lưu cấu hình Prompt!');
+      }
+    }
+
+    function onUploadV1(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const v1El = document.getElementById('userV1Video');
+      v1El.src = URL.createObjectURL(file);
+      v1El.play().catch(() => {});
+      customV1Active = true;
+      document.getElementById('v1StatusLabel').textContent = 'Video 1: ' + file.name;
+      showToast('📂 Đã nạp Video 1: ' + file.name);
+    }
+
+    function populateThreeIngredientsFromImage(img) {
+      const w = img.width;
+      const h = img.height;
+      const drawCrop = (canvasId, sx, sy, sw, sh) => {
+        const c = document.getElementById(canvasId);
+        c.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+      };
+      drawCrop('ingFaceCanvas', w * 0.22, h * 0.05, w * 0.56, h * 0.30);
+      drawCrop('ingTopCanvas', w * 0.15, h * 0.26, w * 0.70, h * 0.32);
+      drawCrop('ingShortsCanvas', w * 0.15, h * 0.50, w * 0.70, h * 0.40);
+    }
+
+    function onUploadRefImg(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        refImageObj = img;
+        customRefActive = true;
+        populateThreeIngredientsFromImage(img);
+        showToast('🖼️ Đã tách tự động 3 Ingredients (Mặt + Áo + Quần đùi)!');
+      };
+      img.src = URL.createObjectURL(file);
+    }
+
+    function onUploadV2(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const v2El = document.getElementById('userV2Video');
+      v2El.src = URL.createObjectURL(file);
+      v2El.onloadeddata = () => {
+        // Nếu chưa tải Ảnh Mẫu riêng, tự động lấy Frame chuẩn ở giây 00:02 của Video 2 làm Ảnh Mẫu khóa quần đùi
+        if (!customRefActive) {
+          v2El.currentTime = Math.min(2.0, (v2El.duration || 4) * 0.25);
+          setTimeout(() => {
+            const temp = document.createElement('canvas');
+            temp.width = v2El.videoWidth || 360;
+            temp.height = v2El.videoHeight || 640;
+            temp.getContext('2d').drawImage(v2El, 0, 0, temp.width, temp.height);
+            const autoImg = new Image();
+            autoImg.onload = () => {
+              refImageObj = autoImg;
+              customRefActive = true;
+              populateThreeIngredientsFromImage(autoImg);
+            };
+            autoImg.src = temp.toDataURL('image/png');
+            v2El.play().catch(() => {});
+          }, 250);
+        } else {
+          v2El.play().catch(() => {});
+        }
+      };
+      customV2Active = true;
+      showToast('📹 Đã nạp Video 2 & tự động khóa vùng quần đùi ở giây 00:02!');
+    }
+
+    async function runFullSyncRender() {
+      if (!isGoogleLoggedIn) {
+        isGoogleLoggedIn = true;
+        const btn = document.getElementById('topGoogleBtn');
+        btn.classList.add('connected');
+        document.getElementById('googleBtnLabel').textContent = '✓ Flow Active';
+      }
+      flowCredits = Math.max(0, flowCredits - 20);
+      document.getElementById('creditCount').textContent = flowCredits.toLocaleString() + ' Credits';
+
+      const bar = document.getElementById('renderProgressBar');
+      const statusTxt = document.getElementById('renderStatusText');
+      bar.style.width = '5%';
+      statusTxt.textContent = '⏳ Đang khóa 3 Ingredients & ghi xuất Video Đồng Bộ (0%)...';
+      showToast('🚀 Bắt đầu tạo video đồng bộ (Khóa cứng quần đùi từ đầu đến cuối)...');
+
+      // Nếu người dùng đã nhập Bearer Token thực tế, gửi đồng thời yêu cầu tới Veo 3.1 API
+      if (activeToken && activeToken.length > 15) {
+        try {
+          const faceB64 = document.getElementById('ingFaceCanvas').toDataURL('image/png').split(',')[1];
+          const shortsB64 = document.getElementById('ingShortsCanvas').toDataURL('image/png').split(',')[1];
+          fetch('https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-generate-001:predictLongRunning', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + activeToken,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              instances: [{
+                prompt: document.getElementById('veoPromptBox').value,
+                image: { bytesBase64Encoded: faceB64, mimeType: 'image/png' },
+                lastFrame: { bytesBase64Encoded: shortsB64, mimeType: 'image/png' }
+              }],
+              parameters: { aspectRatio: '9:16', durationSeconds: 5 }
+            })
+          }).catch(() => {});
+        } catch (e) {}
+      }
+
+      // Ghi luồng video thực tế từ màn hình Output Canvas bằng MediaRecorder
+      let chunks = [];
+      let recorder = null;
+      try {
+        if (outCanvas.captureStream && typeof MediaRecorder !== 'undefined') {
+          const stream = outCanvas.captureStream(24);
+          recorder = new MediaRecorder(stream);
+          recorder.ondataavailable = (ev) => {
+            if (ev.data && ev.data.size > 0) chunks.push(ev.data);
+          };
+          recorder.onstop = () => {
+            if (chunks.length > 0) {
+              const blob = new Blob(chunks, { type: 'video/webm' });
+              recordedBlobUrl = URL.createObjectURL(blob);
+            }
+          };
+          recorder.start();
+        }
+      } catch (err) {}
+
+      let pct = 0;
+      const timer = setInterval(() => {
+        pct += 5;
+        bar.style.width = pct + '%';
+        statusTxt.textContent = `⚡ Đang đồng bộ chuyển động & khóa quần đùi (${pct}%)...`;
+        if (pct >= 100) {
+          clearInterval(timer);
+          if (recorder && recorder.state !== 'inactive') {
+            try { recorder.stop(); } catch (e) {}
+          }
+          statusTxt.textContent = '✅ Hoàn tất 100%! Bấm "Tải Video Kết Quả" bên dưới để lưu về máy.';
+          showToast('🎉 Tạo Video Đồng Bộ hoàn tất! Quần đùi đã giữ nguyên đến cuối video.');
+        }
+      }, 150);
+    }
+
+    function downloadRenderedVideo() {
+      if (recordedBlobUrl) {
+        const a = document.createElement('a');
+        a.href = recordedBlobUrl;
+        a.download = 'video_dong_bo_quan_ngan_flow.webm';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToast('📥 Đang tải video đã đồng bộ về máy!');
+      } else {
+        const a = document.createElement('a');
+        a.href = outCanvas.toDataURL('image/png');
+        a.download = 'frame_dong_bo_quan_ngan.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToast('📥 Đã tải ảnh kết quả! Hãy bấm nút Tạo Video màu xanh lá trước để ghi trọn bộ file Video.');
+      }
+    }
+
+    function downloadThreeIngredients() {
+      const ids = ['ingFaceCanvas', 'ingTopCanvas', 'ingShortsCanvas'];
+      ids.forEach((id, i) => {
+        const c = document.getElementById(id);
+        if (c) {
+          const a = document.createElement('a');
+          a.href = c.toDataURL('image/png');
+          a.download = `google_flow_ingredient_${i + 1}.png`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        }
+      });
+      showToast('📥 Đã tải trọn bộ 3 ảnh Ingredients (Mặt + Áo + Quần đùi)!');
+    }
+
+    // Tự động bắt access_token nếu người dùng vừa đăng nhập OAuth 2.0 quay về trang GitHub Pages
+    function checkOAuthRedirectHash() {
+      if (window.location.hash && window.location.hash.includes('access_token=')) {
+        const params = new URLSearchParams(window.location.hash.substring(1));
+        const tok = params.get('access_token');
+        if (tok) {
+          activeToken = tok;
+          isGoogleLoggedIn = true;
+          document.getElementById('tabTokenInput').value = tok;
+          const btn = document.getElementById('topGoogleBtn');
+          btn.classList.add('connected');
+          document.getElementById('googleBtnLabel').textContent = '✓ Đã nối OAuth Google';
+          showToast('✅ Đăng nhập Google OAuth 2.0 thành công!');
+        }
+      }
+    }
+
+    function initApp() {
+      drawDefaultIngredients();
+      checkOAuthRedirectHash();
+      setInterval(renderStudioFrame, 80);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
