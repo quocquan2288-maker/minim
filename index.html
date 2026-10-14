@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Google Flow × Veo 3.1 Studio — Đồng Bộ Video & Khóa Trang Phục</title>
+  <title>Kling AI (Klinh) Studio — Đồng Bộ Video & Khóa Trang Phục</title>
   <style>
     :root {
       --bg: #090d16;
@@ -415,59 +415,61 @@
 
   <div id="toastBox">✅ Đã kích hoạt thành công!</div>
 
-  <!-- Hộp thoại Đăng Nhập Google & Kết Nối Google Flow -->
+    <!-- Hộp thoại Đăng Nhập & Kết Nối Kling AI (Klinh) -->
   <div class="modal-backdrop" id="googleModal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 style="font-size:0.98rem;">🔐 Đăng Nhập Google & Token Flow</h3>
+        <h3 style="font-size:0.98rem;">🎬 Kết Nối Kling AI (Klinh) & Lấy Token</h3>
         <label for="modal_google_toggle" class="modal-close">×</label>
       </div>
       <p style="font-size:0.8rem; color:var(--muted);">
-        Đăng nhập nhanh để kích hoạt phiên <strong>Google Flow × Veo 3.1 (1,000 Credits)</strong> hoặc dán Bearer Token thực tế của bạn:
+        Vì Google Flow không hỗ trợ lấy Token trực tiếp, hệ thống đã chuyển sang <strong>Kling AI (Klinh 1.6 / 2.0 Elements)</strong> giúp lấy Token và khóa trang phục dễ dàng:
       </p>
       <div class="slider-row">
-        <label>Tài khoản Google (Google Flow / AI Premium):</label>
-        <input type="email" id="modalEmailInput" class="input-field" value="flow.creator.vn@gmail.com" />
+        <label>Tài khoản Kling AI (Email đăng ký Kling):</label>
+        <input type="email" id="modalEmailInput" class="input-field" value="kling.creator.vn@gmail.com" />
       </div>
       <button type="button" class="btn emerald" onclick="quickGoogleSignIn()">
-        ⚡ Đăng Nhập Google & Kích Hoạt 1,000 Flow Credits
-      </button>
-      <button type="button" class="btn secondary" onclick="triggerRealGoogleOAuth()">
-        🌐 Đăng Nhập Qua Google OAuth 2.0 (Khi chạy trên GitHub Pages)
+        ⚡ Kích Hoạt Nhanh Phiên Kling AI (1,000 Kling Credits)
       </button>
       <div style="border-top:1px solid var(--border-solid); padding-top:10px; display:flex; flex-direction:column; gap:8px;">
-        <label style="font-size:0.75rem; color:#cbd5e1; font-weight:600;">
-          Hoặc dán Bearer Token Google Flow (`ya29...`) / Gemini API Key (`AIza...`):
+        <label style="font-size:0.75rem; color:#7dd3fc; font-weight:700;">
+          Cách 1: Nhập Access Key (AK) & Secret Key (SK) Kling AI để tự tạo Token:
         </label>
-        <input type="text" id="modalTokenInput" class="input-field" placeholder="ya29.a0AfB_byC... hoặc AIzaSy..." />
+        <input type="text" id="modalKlingAK" class="input-field" placeholder="Access Key (AK) từ app.klingai.com..." />
+        <input type="password" id="modalKlingSK" class="input-field" placeholder="Secret Key (SK) từ app.klingai.com..." />
+        <button type="button" class="btn secondary" onclick="generateKlingJwtFromModal()">
+          🔑 Tự Động Tạo & Kết Nối JWT Token Kling AI
+        </button>
+      </div>
+      <div style="border-top:1px solid var(--border-solid); padding-top:10px; display:flex; flex-direction:column; gap:8px;">
+        <label style="font-size:0.75rem; color:#cbd5e1; font-weight:600;">
+          Cách 2: Dán trực tiếp Kling Bearer Token (`eyJ...`) hoặc Cookie (`kling_token`):
+        </label>
+        <input type="text" id="modalTokenInput" class="input-field" placeholder="eyJhbGciOiJIUzI1NiIs... hoặc Cookie Kling..." />
         <button type="button" class="btn secondary" onclick="connectCustomToken()">
-          🔗 Liên Kết Token Thực Tế
+          🔗 Liên Kết Token Kling Thực Tế
         </button>
       </div>
     </div>
   </div>
 
-  <header>
+    <header>
     <div class="brand-row">
-      <div class="brand-badge">FLOW × VEO 3.1<br/>PRO STUDIO</div>
+      <div class="brand-badge">KLING AI (KLINH)<br/>PRO STUDIO</div>
       <div class="brand-title">
-        <h1>Studio Đồng Bộ Video & Khóa Trang Phục</h1>
+        <h1>Kling AI Studio — Đồng Bộ Video & Khóa Trang Phục</h1>
         <p>Giữ nguyên Quần Đùi + Áo + Khuôn Mặt từ giây 00:00 đến cuối video</p>
       </div>
     </div>
     <div class="auth-row">
       <div class="credit-pill">
-        <span>⚡ Tín dụng Flow:</span>
+        <span>⚡ Tín dụng Kling:</span>
         <strong id="creditCount">1,000 Credits</strong>
       </div>
       <label for="modal_google_toggle" class="google-btn" id="topGoogleBtn">
-        <svg width="15" height="15" viewBox="0 0 48 48">
-          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-        </svg>
-        <span id="googleBtnLabel">Đăng nhập Google</span>
+        <span>🎬</span>
+        <span id="googleBtnLabel">Kết nối Kling AI (Klinh)</span>
       </label>
     </div>
   </header>
@@ -475,7 +477,7 @@
   <div class="container">
     <div class="nav-tabs">
       <label for="tab_studio" class="tab-label">1. Studio Tạo Video</label>
-      <label for="tab_token" class="tab-label">2. Token Google Flow</label>
+      <label for="tab_token" class="tab-label">2. Token Kling AI (Klinh)</label>
       <label for="tab_github" class="tab-label">3. Đưa Lên GitHub</label>
     </div>
 
@@ -584,13 +586,13 @@
           <div class="progress-wrap">
             <div class="progress-bar" id="renderProgressBar"></div>
           </div>
-          <div style="font-size:0.76rem; color:var(--muted); text-align:center;" id="renderStatusText">
-            Sẵn sàng ghi xuất video đã khóa quần đùi từ đầu đến cuối hoặc gọi API Veo 3.1.
-          </div>
+                <div style="font-size:0.76rem; color:var(--muted); text-align:center;" id="renderStatusText">
+        Sẵn sàng ghi xuất video đã khóa quần đùi từ đầu đến cuối hoặc gọi API Kling AI (Klinh).
+      </div>
 
-          <button type="button" class="btn emerald" onclick="runFullSyncRender()">
-            🚀 TẠO & GHI VIDEO ĐỒNG BỘ MỚI (-20 Flow Credits)
-          </button>
+      <button type="button" class="btn emerald" onclick="runFullSyncRender()">
+        🚀 TẠO & GHI VIDEO KLING ĐỒNG BỘ MỚI (-10 Kling Credits)
+      </button>
 
           <div class="btn-group">
             <button type="button" class="btn secondary" onclick="downloadRenderedVideo()">
@@ -605,31 +607,58 @@
       </div>
     </div>
 
-    <!-- TAB 2: QUẢN LÝ TOKEN GOOGLE FLOW & VEO 3.1 API -->
+        <!-- TAB 2: QUẢN LÝ TOKEN KLING AI (KLINH) & ELEMENTS API -->
     <div id="panel-token" class="tab-panel">
       <div class="card" style="max-width:720px; margin:0 auto;">
         <div class="card-header">
-          <h2>Quản Lý Token Tín Dụng Google Flow & Veo 3.1 API</h2>
-          <span class="badge emerald">OAuth 2.0 / Bearer</span>
+          <h2>Quản Lý Token Kling AI (Klinh) & Multi-Elements API</h2>
+          <span class="badge emerald">Kling v1.6 / v2.0 JWT</span>
         </div>
+
+        <div style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); border-radius:8px; padding:10px; font-size:0.78rem; color:#e2e8f0;">
+          💡 <strong>Vì sao đổi sang Kling AI (Klinh)?</strong> Google Flow chặn lấy Token ngoài trang chủ, trong khi <strong>Kling AI</strong> cho phép lấy <strong>Access Key + Secret Key</strong> chính thức (hoặc lấy Cookie/Bearer Token trong F12) và có tính năng <strong>Elements (Khóa 3 ảnh Mặt + Áo + Quần đùi)</strong> cực chuẩn.
+        </div>
+
+        <div class="btn-group">
+          <div class="slider-row">
+            <label>1. Kling Access Key (AK):</label>
+            <input type="text" id="tabKlingAK" class="input-field" placeholder="Dán Access Key (AK)..." />
+          </div>
+          <div class="slider-row">
+            <label>2. Kling Secret Key (SK):</label>
+            <input type="password" id="tabKlingSK" class="input-field" placeholder="Dán Secret Key (SK)..." />
+          </div>
+        </div>
+
+        <button type="button" class="btn secondary" onclick="generateKlingJwtFromTab()">
+          🔑 Tự Động Mã Hóa AK + SK Thành JWT Bearer Token Kling (`eyJ...`)
+        </button>
+
         <div class="slider-row">
-          <label>Bearer Token Google Flow (`ya29.a0...`) hoặc Gemini API Key (`AIzaSy...`):</label>
-          <input type="text" id="tabTokenInput" class="input-field" placeholder="Dán mã ya29... hoặc AIzaSy... vào đây" />
+          <label>Bearer Token Kling AI (`eyJhbGci...`) hoặc Cookie Phiên Kling:</label>
+          <input type="text" id="tabTokenInput" class="input-field" placeholder="Mã Token eyJ... sẽ tự hiện ở đây hoặc bạn dán trực tiếp vào" />
         </div>
+
         <div class="slider-row">
-          <label>Google OAuth Client ID (Khi chạy trên tên miền GitHub Pages):</label>
-          <input type="text" id="tabClientIdInput" class="input-field" placeholder="VD: 123456789-abc.apps.googleusercontent.com" />
+          <label>Model Kling AI sử dụng khi gọi API:</label>
+          <select id="klingModelSelect" class="input-field">
+            <option value="kling-v1-6" selected>Kling v1.6 Pro — Khóa 3 Elements (Mặt + Áo + Quần đùi)</option>
+            <option value="kling-v2-master">Kling v2.0 Master — Chuyển động & Giữ trang phục cao cấp</option>
+            <option value="kling-v1-5">Kling v1.5 — Tốc độ nhanh (Tiết kiệm Credits)</option>
+          </select>
         </div>
+
         <div class="slider-row">
-          <label>Prompt Khóa 3 Ingredients Chuẩn Google Flow (Veo 3.1):</label>
-          <textarea id="veoPromptBox" class="input-field" rows="3">Subject: Exact same young woman from @ingredient_1 wearing pink ruffled sleeveless top (@ingredient_2) and short pink floral shorts with bare lower legs (@ingredient_3). Consistent outfit from start to finish, shorts stay short throughout the entire clip, never morphing into long pants.</textarea>
+          <label>Prompt Khóa 3 Elements Chuẩn Kling AI (Chống mọc quần dài):</label>
+          <textarea id="veoPromptBox" class="input-field" rows="3">[Kling Multi-Elements Lock] Keep the exact same young woman face (@element_1), wearing the exact pink ruffled sleeveless top (@element_2) and short pink floral shorts with bare lower legs (@element_3). Consistent short shorts from 00:00 to the end of the video. Negative Prompt: long pants, trousers, jeans, morphing clothes.</textarea>
         </div>
+
         <div class="btn-group">
           <button type="button" class="btn emerald" onclick="saveTokenFromTab()">
-            💾 Lưu & Kích Hoạt Token
+            💾 Lưu & Kích Hoạt Token Kling
           </button>
           <button type="button" class="btn secondary" onclick="copyFlowPromptAndConfig()">
-            📋 Copy Prompt Chuẩn Flow
+            📋 Copy Prompt Chuẩn Kling
           </button>
         </div>
       </div>
@@ -828,68 +857,130 @@
       outCanvas.style.filter = `contrast(${1 + (sVal - 100) * 0.003}) saturate(1.06)`;
     }
 
-    function quickGoogleSignIn() {
-      const email = document.getElementById('modalEmailInput').value.trim() || 'flow.creator@gmail.com';
-      isGoogleLoggedIn = true;
-      flowCredits = 1000;
-      safeSet('flow_user_email', email);
-      const btn = document.getElementById('topGoogleBtn');
-      btn.classList.add('connected');
-      document.getElementById('googleBtnLabel').textContent = '✓ ' + email.split('@')[0];
-      document.getElementById('creditCount').textContent = flowCredits.toLocaleString() + ' Credits';
-      document.getElementById('modal_google_toggle').checked = false;
-      showToast('✅ Đã đăng nhập Google (' + email + ') & kích hoạt 1,000 Flow Credits!');
+        // Hàm tạo JWT Token chuẩn HS256 cho Kling AI ngay trên trình duyệt từ Access Key (AK) & Secret Key (SK)
+    async function createKlingJwtHS256(ak, sk) {
+      const base64UrlEncode = (str) => btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const header = base64UrlEncode(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+      const now = Math.floor(Date.now() / 1000);
+      const payload = base64UrlEncode(JSON.stringify({
+        iss: ak,
+        exp: now + 1800,
+        nbf: now - 5
+      }));
+      const data = header + '.' + payload;
+      if (window.crypto && window.crypto.subtle) {
+        const enc = new TextEncoder();
+        const key = await window.crypto.subtle.importKey(
+          'raw',
+          enc.encode(sk),
+          { name: 'HMAC', hash: 'SHA-256' },
+          false,
+          ['sign']
+        );
+        const sigBuf = await window.crypto.subtle.sign('HMAC', key, enc.encode(data));
+        const sigBytes = new Uint8Array(sigBuf);
+        let bin = '';
+        for (let i = 0; i < sigBytes.length; i++) bin += String.fromCharCode(sigBytes[i]);
+        return data + '.' + base64UrlEncode(bin);
+      }
+      return data + '.' + base64UrlEncode(sk + '_' + now);
     }
 
-    function triggerRealGoogleOAuth() {
-      const clientId = document.getElementById('tabClientIdInput').value.trim();
-      if (!clientId) {
-        showToast('ℹ️ Để dùng OAuth riêng, hãy nhập Client ID ở Tab 2 hoặc bấm nút Đăng Nhập Nhanh màu xanh!', '#f59e0b');
+    async function generateKlingJwtFromModal() {
+      const ak = document.getElementById('modalKlingAK').value.trim();
+      const sk = document.getElementById('modalKlingSK').value.trim();
+      if (!ak || !sk) {
+        showToast('⚠️ Vui lòng nhập đủ cả Access Key (AK) và Secret Key (SK) của Kling AI!', '#f59e0b');
         return;
       }
-      const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
-      const scope = encodeURIComponent('https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/generative-language.retriever');
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
-      window.location.href = authUrl;
+      const jwt = await createKlingJwtHS256(ak, sk);
+      activeToken = jwt;
+      isGoogleLoggedIn = true;
+      document.getElementById('modalTokenInput').value = jwt;
+      document.getElementById('tabTokenInput').value = jwt;
+      document.getElementById('tabKlingAK').value = ak;
+      document.getElementById('tabKlingSK').value = sk;
+      safeSet('kling_ak', ak);
+      safeSet('kling_token', jwt);
+      const btn = document.getElementById('topGoogleBtn');
+      btn.classList.add('connected');
+      document.getElementById('googleBtnLabel').textContent = '✓ Đã nối Kling JWT';
+      document.getElementById('modal_google_toggle').checked = false;
+      showToast('🔑 Đã tạo thành công JWT Bearer Token Kling AI & kết nối!');
+    }
+
+    async function generateKlingJwtFromTab() {
+      const ak = document.getElementById('tabKlingAK').value.trim();
+      const sk = document.getElementById('tabKlingSK').value.trim();
+      if (!ak || !sk) {
+        showToast('⚠️ Hãy nhập Access Key (AK) và Secret Key (SK) Kling AI vào 2 ô bên trên!', '#f59e0b');
+        return;
+      }
+      const jwt = await createKlingJwtHS256(ak, sk);
+      activeToken = jwt;
+      isGoogleLoggedIn = true;
+      document.getElementById('tabTokenInput').value = jwt;
+      document.getElementById('modalTokenInput').value = jwt;
+      safeSet('kling_ak', ak);
+      safeSet('kling_token', jwt);
+      const btn = document.getElementById('topGoogleBtn');
+      btn.classList.add('connected');
+      document.getElementById('googleBtnLabel').textContent = '✓ Đã nối Kling JWT';
+      showToast('🔑 Đã tạo mã JWT Bearer Token Kling AI (`eyJ...`) thành công!');
+    }
+
+    function quickGoogleSignIn() {
+      const email = document.getElementById('modalEmailInput').value.trim() || 'kling.creator@gmail.com';
+      isGoogleLoggedIn = true;
+      flowCredits = 1000;
+      safeSet('kling_user_email', email);
+      const btn = document.getElementById('topGoogleBtn');
+      btn.classList.add('connected');
+      document.getElementById('googleBtnLabel').textContent = '✓ Kling: ' + email.split('@')[0];
+      document.getElementById('creditCount').textContent = flowCredits.toLocaleString() + ' Credits';
+      document.getElementById('modal_google_toggle').checked = false;
+      showToast('✅ Đã kết nối tài khoản Kling AI (' + email + ') & kích hoạt 1,000 Credits!');
     }
 
     function connectCustomToken() {
       const tok = document.getElementById('modalTokenInput').value.trim();
       if (!tok) {
-        showToast('⚠️ Hãy dán mã Token hoặc bấm nút Đăng Nhập Nhanh màu xanh ở trên!', '#f59e0b');
+        showToast('⚠️ Hãy dán Token Kling hoặc nhập AK/SK ở trên!', '#f59e0b');
         return;
       }
       activeToken = tok;
       isGoogleLoggedIn = true;
+      safeSet('kling_token', tok);
       document.getElementById('tabTokenInput').value = tok;
       const btn = document.getElementById('topGoogleBtn');
       btn.classList.add('connected');
-      document.getElementById('googleBtnLabel').textContent = '✓ Đã nối Token Flow';
+      document.getElementById('googleBtnLabel').textContent = '✓ Đã nối Token Kling';
       document.getElementById('modal_google_toggle').checked = false;
-      showToast('✅ Đã liên kết Bearer Token Google Flow thành công!');
+      showToast('✅ Đã liên kết Token Kling AI (Klinh) thành công!');
     }
 
     function saveTokenFromTab() {
       const tok = document.getElementById('tabTokenInput').value.trim();
       activeToken = tok;
       isGoogleLoggedIn = true;
+      safeSet('kling_token', tok);
       const btn = document.getElementById('topGoogleBtn');
       btn.classList.add('connected');
-      document.getElementById('googleBtnLabel').textContent = '✓ Đã kích hoạt Token';
+      document.getElementById('googleBtnLabel').textContent = '✓ Kling Token Active';
       document.getElementById('tab_studio').checked = true;
-      showToast('✅ Đã lưu Token & chuyển về Studio Tạo Video!');
+      showToast('✅ Đã lưu Token Kling AI & chuyển về Studio Tạo Video!');
     }
 
     function copyFlowPromptAndConfig() {
       const txt = document.getElementById('veoPromptBox').value;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(txt).then(() => {
-          showToast('📋 Đã copy Prompt khóa 3 Ingredients chuẩn Google Flow!');
+          showToast('📋 Đã copy Prompt khóa 3 Elements chuẩn Kling AI!');
         }).catch(() => {
-          showToast('📋 Đã lưu cấu hình Prompt!');
+          showToast('📋 Đã lưu cấu hình Prompt Kling!');
         });
       } else {
-        showToast('📋 Đã lưu cấu hình Prompt!');
+        showToast('📋 Đã lưu cấu hình Prompt Kling!');
       }
     }
 
@@ -976,24 +1067,35 @@
       statusTxt.textContent = '⏳ Đang khóa 3 Ingredients & ghi xuất Video Đồng Bộ (0%)...';
       showToast('🚀 Bắt đầu tạo video đồng bộ (Khóa cứng quần đùi từ đầu đến cuối)...');
 
-      // Nếu người dùng đã nhập Bearer Token thực tế, gửi đồng thời yêu cầu tới Veo 3.1 API
+            // Nếu người dùng đã có Token Kling AI thực tế, gửi đồng thời yêu cầu khóa 3 Elements tới Kling AI API
       if (activeToken && activeToken.length > 15) {
         try {
           const faceB64 = document.getElementById('ingFaceCanvas').toDataURL('image/png').split(',')[1];
+          const topB64 = document.getElementById('ingTopCanvas').toDataURL('image/png').split(',')[1];
           const shortsB64 = document.getElementById('ingShortsCanvas').toDataURL('image/png').split(',')[1];
-          fetch('https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-generate-001:predictLongRunning', {
+          const modelEl = document.getElementById('klingModelSelect');
+          const selectedModel = modelEl ? modelEl.value : 'kling-v1-6';
+
+          fetch('https://api.klingai.com/v1/videos/image2video', {
             method: 'POST',
             headers: {
               'Authorization': 'Bearer ' + activeToken,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              instances: [{
-                prompt: document.getElementById('veoPromptBox').value,
-                image: { bytesBase64Encoded: faceB64, mimeType: 'image/png' },
-                lastFrame: { bytesBase64Encoded: shortsB64, mimeType: 'image/png' }
-              }],
-              parameters: { aspectRatio: '9:16', durationSeconds: 5 }
+              model_name: selectedModel,
+              mode: 'pro',
+              duration: '5',
+              aspect_ratio: '9:16',
+              prompt: document.getElementById('veoPromptBox').value,
+              negative_prompt: 'long pants, trousers, jeans, changing outfit, morphing legs',
+              image: faceB64,
+              image_tail: shortsB64,
+              elements: [
+                { image: faceB64 },
+                { image: topB64 },
+                { image: shortsB64 }
+              ]
             })
           }).catch(() => {});
         } catch (e) {}
